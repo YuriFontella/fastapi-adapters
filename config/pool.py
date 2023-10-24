@@ -8,7 +8,7 @@ config.read('config.ini')
 
 env = os.environ.get('PYTHON_ENV', 'development')
     
-database = Database(config.get(env, 'DSN'), min_size=2, max_size=4)
+database = Database(url=config.get(env, 'URL'), min_size=2, max_size=4)
 
 @asynccontextmanager
 async def lifespan(app):
