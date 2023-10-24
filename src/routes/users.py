@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
+from config.pool import pool
 
 router = APIRouter()
 
 @router.get('/users')
-async def users(request: Request):
-    pool = request.app.state.pool
-    async with pool.acquire() as conn:
-        rows = await conn.fetch('SELECT name FROM users LIMIT 1')
+async def users():
+    async with pool.connection() as conn:
+        rows = await conn.execute('SELECT name FROM users LIMIT 1')
 
-    return rows
+    return await rows.fetchone()
