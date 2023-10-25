@@ -1,17 +1,18 @@
 import configparser, os
-from fastapi import FastAPI
 
-from asyncpg import create_pool
+from databases import Database
 from contextlib import asynccontextmanager
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 
 env = os.environ.get('PYTHON_ENV', 'development')
+    
+database = Database(url=config.get(env, 'URL'), min_size=2, max_size=4)
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    app.state.pool = await create_pool(dsn=config.get(env, 'DSN'), min_size=2, max_size=4)
+async def lifespan(app):
+    await database.connect()
     yield
 
-    await app.state.pool.close()
+    await database.disconnect()
